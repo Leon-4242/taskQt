@@ -28,10 +28,13 @@ namespace Approx {
 		std::vector<double> xi;
 		std::vector<double> v;
 
+		/*
 		std::vector<double> dUp;
 		std::vector<double> d;
 		std::vector<double> dDown;
 		std::vector<double> right;
+		*/
+		std::vector<double> system;
 
 		std::vector<double> coeff;
 
@@ -59,7 +62,7 @@ namespace Approx {
 		void setPixel(double);
 	};
 
-	void solve(std::vector<double> &, std::vector<double> &, std::vector<double> &, std::vector<double> &, int, std::vector<double> &);	
+	void solve(std::vector<double> &, /*std::vector<double> &, std::vector<double> &, std::vector<double> &, */int, std::vector<double> &);	
 }
 
 #endif //APPROXIMATION_H

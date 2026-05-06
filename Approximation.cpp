@@ -8,7 +8,8 @@ namespace Approx {
 		chebushevPoints(std::vector<double>(n)), diff(std::vector<double>(n)), 
 		points(std::vector<double>(n)), values(std::vector<double>(n)),
 		xi(std::vector<double>(n-3)), v(std::vector<double>(n-3)), 
-		dUp(std::vector<double>(n-4)), d(std::vector<double>(n-3)), dDown(std::vector<double>(n-4)), right(std::vector<double>(n-3)),
+		/*dUp(std::vector<double>(n-4)), d(std::vector<double>(n-3)), dDown(std::vector<double>(n-4)), right(std::vector<double>(n-3)),*/
+		system(std::vector<double>(4*n-14)),
 		coeff(std::vector<double>(3*(n-2)))
 	{
 		if (n < 50) {
@@ -42,25 +43,38 @@ namespace Approx {
 		for (int i = 0; i < n-3; ++i)
 			xi[i] = (points[i-1 + 2]+points[i + 2])/2;
 
-		for (int i = 0; i < n-3; ++i) {
-			if (i == 0) {
-				d[0] = 1/(xi[0]-points[0]) + 1/(xi[0]-points[1]) + 1/(points[2]-xi[0]) + 1/(xi[1]-xi[0]);
-				dUp[0] = 1/(xi[1]-points[2]) - 1/(xi[1]-xi[0]);
-				right[0] = 
-					values[1]*(1/(xi[0]-points[0]) + 1/(xi[0]-points[1])) + 
-					values[2]*(1/(points[2]-xi[0]) + 1/(xi[1]-points[2])) +
-					((xi[0]-points[1])/(xi[0]-points[0]))*(values[1]-values[0])/(points[1]-points[0]);
-				continue;
-			}
-			if (i == n-4) {
-				dDown[n-5] = 1/(points[n-3]-xi[n-5]) - 1/(xi[n-4]-xi[n-5]);
-				d[n-4] = 1/(xi[n-4]-points[n-3]) + 1/(xi[n-4]-xi[n-5])+ 1/(points[n-2]-xi[n-4]) + 1/(points[n-1]-xi[n-4]);
-				right[n-4] = 
-					values[n-3]*(1/(points[n-3]-xi[n-5]) + 1/(xi[n-4]-points[n-3])) + 
-					values[n-2]*(1/(points[n-2]-xi[n-4]) + 1/(points[n-1]-xi[n-4])) -
-					((points[n-2]-xi[n-4])/(points[n-1]-xi[n-4]))*(values[n-1]-values[n-2])/(points[n-1]-points[n-2]);
-				continue;
-			}
+		system[0] = 1/(xi[0]-points[0]) + 1/(xi[0]-points[1]) + 1/(points[2]-xi[0]) + 1/(xi[1]-xi[0]);
+		system[2] = 1/(xi[1]-points[2]) - 1/(xi[1]-xi[0]);
+		system[3*(n-4)+1 + 0] = 
+			values[1]*(1/(xi[0]-points[0]) + 1/(xi[0]-points[1])) + 
+			values[2]*(1/(points[2]-xi[0]) + 1/(xi[1]-points[2])) +
+			((xi[0]-points[1])/(xi[0]-points[0]))*(values[1]-values[0])/(points[1]-points[0]);
+
+		for (int i = 1; i < n-4; ++i) {
+			system[3*i-2] = 1/(points[(i-1)+2]-xi[i-1]) - 1/(xi[i]-xi[i-1]);
+			system[3*i] = 1/(xi[i]-points[(i-1)+2]) + 1/(xi[i]-xi[i-1]) + 1/(points[i+2]-xi[i]) + 1/(xi[i+1]-xi[i]);
+			system[3*i+2] = 1/(xi[i+1]-points[i+2]) - 1/(xi[i+1]-xi[i]);
+			system[3*(n-4)+1 + i] = 
+				values[(i-1)+2]*(1/(points[(i-1)+2]-xi[i-1]) + 1/(xi[i]-points[(i-1)+2])) + 
+				values[i+2]*(1/(points[i+2]-xi[i]) + 1/(xi[i+1]-points[i+2]));
+		}
+
+		system[3*(n-4)-2] = 1/(points[n-3]-xi[n-5]) - 1/(xi[n-4]-xi[n-5]);
+		system[3*(n-4)] = 1/(xi[n-4]-points[n-3]) + 1/(xi[n-4]-xi[n-5])+ 1/(points[n-2]-xi[n-4]) + 1/(points[n-1]-xi[n-4]);
+		system[3*(n-4)+1 + n-4] = 
+			values[n-3]*(1/(points[n-3]-xi[n-5]) + 1/(xi[n-4]-points[n-3])) + 
+			values[n-2]*(1/(points[n-2]-xi[n-4]) + 1/(points[n-1]-xi[n-4])) -
+			((points[n-2]-xi[n-4])/(points[n-1]-xi[n-4]))*(values[n-1]-values[n-2])/(points[n-1]-points[n-2]);
+
+/*
+		d[0] = 1/(xi[0]-points[0]) + 1/(xi[0]-points[1]) + 1/(points[2]-xi[0]) + 1/(xi[1]-xi[0]);
+		dUp[0] = 1/(xi[1]-points[2]) - 1/(xi[1]-xi[0]);
+		right[0] = 
+			values[1]*(1/(xi[0]-points[0]) + 1/(xi[0]-points[1])) + 
+			values[2]*(1/(points[2]-xi[0]) + 1/(xi[1]-points[2])) +
+			((xi[0]-points[1])/(xi[0]-points[0]))*(values[1]-values[0])/(points[1]-points[0]);
+
+		for (int i = 1; i < n-4; ++i) {
 			dDown[i-1] = 1/(points[(i-1)+2]-xi[i-1]) - 1/(xi[i]-xi[i-1]);
 			d[i] = 1/(xi[i]-points[(i-1)+2]) + 1/(xi[i]-xi[i-1]) + 1/(points[i+2]-xi[i]) + 1/(xi[i+1]-xi[i]);
 			dUp[i] = 1/(xi[i+1]-points[i+2]) - 1/(xi[i+1]-xi[i]);
@@ -69,31 +83,34 @@ namespace Approx {
 				values[i+2]*(1/(points[i+2]-xi[i]) + 1/(xi[i+1]-points[i+2]));
 		}
 
-		solve(dUp, d, dDown, right, n-3, v);
-		
-		for (int i = 0; i < n-2; ++i) {
-			if (i == 0) {
-				coeff[0] = values[0];
-				double diff = (values[1]-values[0])/(points[1]-points[0]);
-				coeff[1] = diff - ((points[1]-points[0])/(xi[0]-points[0]))*((v[0]-values[1])/(xi[0]-points[1])-diff);
-				coeff[2] = 1/(xi[0]-points[0]) *((v[0]-values[1])/(xi[0]-points[1])-diff);
-				continue;
-			}
+		dDown[n-5] = 1/(points[n-3]-xi[n-5]) - 1/(xi[n-4]-xi[n-5]);
+		d[n-4] = 1/(xi[n-4]-points[n-3]) + 1/(xi[n-4]-xi[n-5])+ 1/(points[n-2]-xi[n-4]) + 1/(points[n-1]-xi[n-4]);
+		right[n-4] = 
+			values[n-3]*(1/(points[n-3]-xi[n-5]) + 1/(xi[n-4]-points[n-3])) + 
+			values[n-2]*(1/(points[n-2]-xi[n-4]) + 1/(points[n-1]-xi[n-4])) -
+			((points[n-2]-xi[n-4])/(points[n-1]-xi[n-4]))*(values[n-1]-values[n-2])/(points[n-1]-points[n-2]);
+*/
 
-			if (i == n-3) {
-				coeff[i*3] = v[n-4];
-				coeff[i*3+1] = (values[n-2]-v[n-4])/(points[n-2]-xi[n-4]) - (points[n-2]-xi[n-4])/(points[n-1]-xi[n-4])*
-					((values[n-1]-values[n-2])/(points[n-1]-points[n-2])-(values[n-2]-v[n-4])/(points[n-2]-xi[n-4]));
-				coeff[i*3+2] = 1/(points[n-1]-xi[n-4])*((values[n-1]-values[n-2])/(points[n-1]-points[n-2])-(values[n-2]-v[n-4])/(points[n-2]-xi[n-4]));
 
-				continue;
-			}
+		solve(system, /*dUp, d, dDown, right, */n-3, v);
+	
+		coeff[0] = values[0];
+		double diff = (values[1]-values[0])/(points[1]-points[0]);
+		coeff[1] = diff - ((points[1]-points[0])/(xi[0]-points[0]))*((v[0]-values[1])/(xi[0]-points[1])-diff);
+		coeff[2] = 1/(xi[0]-points[0]) *((v[0]-values[1])/(xi[0]-points[1])-diff);
 
+		for (int i = 1; i < n-3; ++i) {
 			coeff[i*3] = v[i-1];
 			coeff[i*3+1] = (values[i+1]-v[i-1])/(points[i+1]-xi[i-1])-(points[i+1]-xi[i-1])/(xi[i]-xi[i-1])*
 					((v[i]-values[i+1])/(xi[i]-points[i+1]) - (values[i+1]-v[i-1])/(points[i+1]-xi[i-1]));
 			coeff[i*3+2] = 1/(xi[i]-xi[i-1])*((v[i]-values[i+1])/(xi[i]-points[i+1]) - (values[i+1]-v[i-1])/(points[i+1]-xi[i-1]));
 		}
+		
+		coeff[(n-3)*3] = v[n-4];
+		coeff[(n-3)*3+1] = (values[n-2]-v[n-4])/(points[n-2]-xi[n-4]) - (points[n-2]-xi[n-4])/(points[n-1]-xi[n-4])*
+			((values[n-1]-values[n-2])/(points[n-1]-points[n-2])-(values[n-2]-v[n-4])/(points[n-2]-xi[n-4]));
+		coeff[(n-3)*3+2] = 1/(points[n-1]-xi[n-4])*((values[n-1]-values[n-2])/(points[n-1]-points[n-2])-(values[n-2]-v[n-4])/(points[n-2]-xi[n-4]));
+
 		return;
 	}
 
@@ -164,16 +181,17 @@ namespace Approx {
 	void Approximator::setFunction(double (*func)(double))
 	{
 		f = func;
+		p = 0;
 		
 		if (n < 50) {
 			for (int i = 0; i < n; ++i)
-				diff[i] = f(chebushevPoints[i]) + (i == n/2 ? p : 0);
+				diff[i] = f(chebushevPoints[i]);
 
 			makeApproxPolynom();
 		}
 
 		for (int i = 0; i < n; ++i)
-			values[i] = f(points[i]) + (i == n/2 ? p : 0);
+			values[i] = f(points[i]);
 
 		makeApproxPiecePolynom();
 	}
@@ -215,12 +233,14 @@ namespace Approx {
 	
 		xi.resize(n-3);
 		v.resize(n-3);
-		
+
+		/*
 		dUp.resize(n-4);
 		d.resize(n-3);
 		dDown.resize(n-4);
 		right.resize(n-3);
-
+		*/
+		system.resize(4*n-14);
 		coeff.resize(3*(n-2));
 
 		for (int i = 0; i < n; ++i) {
@@ -268,8 +288,31 @@ namespace Approx {
 		return minMax;
 	}
 
-	void solve(std::vector<double> &dUp, std::vector<double> &d, std::vector<double> &dDown, std::vector<double> &b, int n, std::vector<double> &res)
+	void solve(std::vector<double> &system, /*std::vector<double> dUp, std::vector<double> &d, std::vector<double> &dDown, std::vector<double> &b,*/ 
+			int n, std::vector<double> &res)
 	{
+		for (int i = 0; i < n-1; ++i) {
+			system[3*n-2 + i] /= system[3*i];
+			system[3*i+2] /= system[3*i];
+			system[3*i] = 1.0;
+
+			system[3*n-2 + i+1] -= system[3*n-2 + i]*system[3*(i+1) - 2];
+			system[3*(i+1)] -= system[3*i+2]*system[3*(i+1) - 2];
+			system[3*(i+1) - 2] = 0.0;
+		}
+
+		for (int i = n-1; i > 0; --i) {
+			system[3*n-2 + i] /= system[3*i];
+			system[3*i] = 1.0;
+
+			system[3*n-2 + i-1] -= system[3*n-2 + i]*system[3*(i-1) + 2];
+			system[3*(i-1) + 2] = 0.0;
+		}
+
+		for (int i = 0; i < n; ++i)
+			res[i] = system[3*n-2 + i];
+
+		/*
 		for (int i = 0; i < n-1; ++i) {
 			b[i] /= d[i];
 			dUp[i] /= d[i];
@@ -291,22 +334,6 @@ namespace Approx {
 		for (int i = 0; i < n; ++i) {
 			res[i] = b[i];
 		}
-
-		/*
-		bool flag = true;
-		for (int i = 0; i < n; ++i) {
-			for (int j = 0; j < n; ++j) {
-				if (!(fabs(a[i*(n+1)+j] - (i == j ? 1.0 : 0.0)) < 1e-15)) {
-					flag = false;
-					break;
-				}
-			}
-			if (!flag)
-				break;
-		}
-
-		if (!flag) 
-			std::cerr << "wrong solve" << std::endl;
 		*/
 	}
 }

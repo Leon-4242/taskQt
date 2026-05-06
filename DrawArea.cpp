@@ -346,7 +346,6 @@ void DrawArea::changeFunc()
 	data->p = 0;
 
 	approximator.setFunction(functions[data->k].f);
-	approximator.setError(0);
 
 	emit data->changed();
 	update();
