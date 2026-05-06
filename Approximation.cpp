@@ -127,25 +127,6 @@ namespace Approx {
 
 	double Approximator::approxPiecePolynom(double x)
 	{
-		/*
-		static int k = -1;
-		if (k == -1) {
-			if (x < xi[0])
-				return (coeff[2]*(x-points[0])+coeff[1])*(x-points[0])+coeff[0];
-			else {
-				++k;
-				return (coeff[3*(k+1)+2]*(x-xi[k])+coeff[3*(k+1)+1])*(x-xi[k])+coeff[3*(k+1)];
-			}
-		} else if (k == n-4) {
-			return (coeff[3*(n-3)+2]*(x-xi[n-4])+coeff[3*(n-3)+1])*(x-xi[n-4])+coeff[3*(n-3)];
-		} else {
-			if (x >= xi[k+1])
-				++k;
-			return (coeff[3*(k+1)+2]*(x-xi[k])+coeff[3*(k+1)+1])*(x-xi[k])+coeff[3*(k+1)];
-		}
-		*/
-
-
 		if (x < xi[0])
 			return (coeff[2]*(x-points[0])+coeff[1])*(x-points[0])+coeff[0];
 
@@ -179,8 +160,6 @@ namespace Approx {
 
 		while (k < n-3 && x > xi[k+1])
 			++k;
-//		std::cerr << x << " " << k << " " << xi[k] << " " << xi[k+1] << " " << (x - xi[k]) << std::endl;
-//		assert(x < xi[k+1]);
 
 		return (coeff[3*(k+1)+2]*(x-xi[k])+coeff[3*(k+1)+1])*(x-xi[k])+coeff[3*(k+1)];
 	}

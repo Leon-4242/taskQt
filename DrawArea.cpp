@@ -257,8 +257,8 @@ void DrawArea::drawApproxSecond(QPainter *painter)
 	pen.setWidth(1);
 	painter->setPen(pen);
 
-	drawPolynomOptimized(painter);
-	//drawFunction(painter, &Approx::Approximator::approxPiecePolynom);
+	//drawPolynomOptimized(painter);
+	drawFunction(painter, &Approx::Approximator::approxPiecePolynom);
 }
 
 void DrawArea::drawError(QPainter *painter) 
