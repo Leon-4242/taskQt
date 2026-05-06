@@ -11,23 +11,25 @@ namespace Approx {
 		dUp(std::vector<double>(n-4)), d(std::vector<double>(n-3)), dDown(std::vector<double>(n-4)), right(std::vector<double>(n-3)),
 		coeff(std::vector<double>(3*(n-2)))
 	{
-		makeApproxPolynom();
+		if (n < 50) {
+			for (int i = 0; i < n; ++i) {
+				chebushevPoints[i] = (a+b)/2 + ((b-a)/2) * cos(M_PI*(i+0.5)/n);
+				diff[i] = f(chebushevPoints[i]) + (i == n/2 ? p : 0);
+			}
+
+			makeApproxPolynom();
+		}
+
+		for (int i = 0; i < n; ++i) {
+			points[i] = a + (b-a)/(n-1) *i; 
+			values[i] = f(points[i]) + (i == n/2 ? p : 0);
+		}
+
 		makeApproxPiecePolynom();
 	}
 
 	void Approximator::makeApproxPolynom(void)
 	{
-		if (n > 50)
-			return;
-		chebushevPoints.resize(n);
-		diff.resize(n);
-		for (int i = 0; i < n; ++i) {
-			chebushevPoints[i] = (a+b)/2 + ((b-a)/2) * cos(M_PI*(i+0.5)/n);
-		}
-		for (int i = 0; i < n; ++i) {
-			diff[i] = f(chebushevPoints[i]) + (i == n/2 ? p : 0);
-		}
-
 		for (int t = 1; t < n; ++t) {
 			for (int k = n-1; k >= t; --k) {
 				diff[k] = (diff[k]-diff[k-1])/(chebushevPoints[k]-chebushevPoints[k-t]);
@@ -37,25 +39,6 @@ namespace Approx {
 
 	void Approximator::makeApproxPiecePolynom(void)
 	{
-		if (n <= 4)
-			n = 4;
-		points.resize(n);
-		values.resize(n);
-		xi.resize(n-3);
-		v.resize(n-3);
-		
-		dUp.resize(n-4);
-		d.resize(n-3);
-		dDown.resize(n-4);
-		right.resize(n-3);
-
-		coeff.resize(3*(n-2));
-
-		for (int i = 0; i < n; ++i) {
-			points[i] = a + (b-a)/(n-1) *i; 
-			values[i] = f(points[i]) + (i == n/2 ? p : 0);
-		}
-
 		for (int i = 0; i < n-3; ++i)
 			xi[i] = (points[i-1 + 2]+points[i + 2])/2;
 
@@ -181,9 +164,17 @@ namespace Approx {
 	void Approximator::setFunction(double (*func)(double))
 	{
 		f = func;
+		
+		if (n < 50) {
+			for (int i = 0; i < n; ++i)
+				diff[i] = f(chebushevPoints[i]) + (i == n/2 ? p : 0);
 
-		if (n <= 50)
 			makeApproxPolynom();
+		}
+
+		for (int i = 0; i < n; ++i)
+			values[i] = f(points[i]) + (i == n/2 ? p : 0);
+
 		makeApproxPiecePolynom();
 	}
 
@@ -191,8 +182,14 @@ namespace Approx {
 	{
 		p = pp;
 
-		if (n <= 50)
+		if (n < 50) {
+			diff[n/2] = f(chebushevPoints[n/2]) + p;
+
 			makeApproxPolynom();
+		}
+
+		values[n/2] = f(points[n/2]) + p;
+
 		makeApproxPiecePolynom();
 	}
 
@@ -200,10 +197,37 @@ namespace Approx {
 	void Approximator::setN(int nn)
 	{
 		n = nn;
+	
+		if (n < 50) {
+			chebushevPoints.resize(n);
+			diff.resize(n);
 
-		if (n <= 50)
+			for (int i = 0; i < n; ++i) {
+				chebushevPoints[i] = (a+b)/2 + ((b-a)/2) * cos(M_PI*(i+0.5)/n);
+				diff[i] = f(chebushevPoints[i]) + (i == n/2 ? p : 0);
+			}
+
 			makeApproxPolynom();
+		}
+
+		points.resize(n);
+		values.resize(n);
+	
+		xi.resize(n-3);
+		v.resize(n-3);
 		
+		dUp.resize(n-4);
+		d.resize(n-3);
+		dDown.resize(n-4);
+		right.resize(n-3);
+
+		coeff.resize(3*(n-2));
+
+		for (int i = 0; i < n; ++i) {
+			points[i] = a + (b-a)/(n-1) *i; 
+			values[i] = f(points[i]) + (i == n/2 ? p : 0);
+		}
+
 		makeApproxPiecePolynom();
 	}
 
