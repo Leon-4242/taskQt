@@ -1,7 +1,7 @@
 QT += widgets
 
 CONFIG += c++11
-QMAKE_CXXFLAGS += -g -pg -W -Wall -Werror -Wfloat-equal -Wunused -Wnon-virtual-dtor -isystem $$[QT_INSTALL_HEADERS]
+QMAKE_CXXFLAGS += -g -W -Wall -Werror -Wfloat-equal -Wunused -Wnon-virtual-dtor -isystem $$[QT_INSTALL_HEADERS]
 
 OBJECTS_DIR = build/obj
 MOC_DIR     = build/moc

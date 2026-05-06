@@ -1,4 +1,5 @@
 #include "Approximation.h"
+#include <sys/time.h>
 #include <iostream>
 
 namespace Approx {
@@ -39,6 +40,13 @@ namespace Approx {
 
 	void Approximator::makeApproxPiecePolynom(void)
 	{
+		
+	#if TIMER==1	
+		struct timeval start, end;
+		long long start_us, end_us;
+
+		gettimeofday(&start, NULL);
+	#endif
 		for (int i = 0; i < n-3; ++i)
 			xi[i] = (points[i-1 + 2]+points[i + 2])/2;
 
@@ -94,6 +102,15 @@ namespace Approx {
 		coeff[(n-3)*3+1] = (values[n-2]-v[n-4])/(points[n-2]-xi[n-4]) - (points[n-2]-xi[n-4])/(points[n-1]-xi[n-4])*
 			((values[n-1]-values[n-2])/(points[n-1]-points[n-2])-(values[n-2]-v[n-4])/(points[n-2]-xi[n-4]));
 		coeff[(n-3)*3+2] = 1/(points[n-1]-xi[n-4])*((values[n-1]-values[n-2])/(points[n-1]-points[n-2])-(values[n-2]-v[n-4])/(points[n-2]-xi[n-4]));
+	
+	#if TIMER==1
+		gettimeofday(&end, NULL);
+ 
+		start_us = start.tv_sec * 1000000 + start.tv_usec;
+		end_us = end.tv_sec * 1000000 + end.tv_usec;
+ 
+		std::cerr <<"\n\n\n\n\n\n\n\n\n\n" << (double)(end_us - start_us) / 1000000. << "\n\n\n\n\n\n\n\n\n\n"<< std::endl;
+	#endif
 
 		return;
 	}

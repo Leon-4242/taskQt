@@ -7,6 +7,8 @@
 #include <vector>
 #include <functional>
 
+#define TIMER (0)
+
 namespace Approx {
 	using namespace R2Geometry;
 
