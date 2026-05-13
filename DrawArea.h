@@ -71,7 +71,8 @@ private:
 	void recomputeBounds();
 	
 	void drawCoordSystem(QPainter *);
-	void drawPoints(QPainter *);
+	void drawPointsFirst(QPainter *);
+	void drawPointsSecond(QPainter *);
 	
 	void drawFunction(QPainter *, double (Approx::Approximator::*)(double)); 
 	void drawPolynomOptimized(QPainter *);

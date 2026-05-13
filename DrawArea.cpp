@@ -56,15 +56,19 @@ void DrawArea::paintEvent(QPaintEvent *event)
 	approximator.setPixel(mapFromPixels(QPointF(1., 0.)).X() - mapFromPixels(QPointF(0., 0.)).X());
 
 	painter.setRenderHint(QPainter::Antialiasing, true);
-	if (pointsDrawFlag)
-		drawPoints(&painter);
 	
 	if (data->origin)
 		drawOrigin(&painter);
-	if (data->polynom)
+	if (data->polynom) {
 		drawApproxFirst(&painter);
-	if (data->piecePolynom)
+		if (pointsDrawFlag)
+			drawPointsFirst(&painter);
+	}
+	if (data->piecePolynom) {
 		drawApproxSecond(&painter);
+		if (pointsDrawFlag)
+			drawPointsSecond(&painter);
+	}
 	if (data->error)
 		drawError(&painter);
 
@@ -75,22 +79,6 @@ void DrawArea::paintEvent(QPaintEvent *event)
 void DrawArea::drawInformation(QPainter * /*painter*/) 
 {
 	/*
-	painter->setPen(Qt::blue);
-	painter->drawText(0, 20, QString::fromStdString( "k = " + std::to_string(data->k) + " " + functions[data->k].name));
-	if (origin)
-		painter->drawText(0, 40, QString::fromStdString("max |f_origin(x)| = " + std::to_string(data->originAbsMax)));
-	if (approxFirst)
-		painter->drawText(0, 60, QString::fromStdString("max |f_first(x)| = " + std::to_string(data->polynomAbsMax)));
-	if (approxSecond)
-		painter->drawText(0, (approxFirst ? 80 : 60), QString::fromStdString("max |f_second(x)| = " + std::to_string(data->piecePolynomAbsMax)));
-	if (error) {
-		painter->drawText(0, 40, QString::fromStdString("max |f_frist_error(x)| = " + std::to_string(data->errorPolynomAbsMax)));
-		painter->drawText(0, 60, QString::fromStdString("max |f_second_error(x)| = " + std::to_string(data->errorPiecePolynomAbsMax)));
-	}
-
-	painter->drawText(0, origin && approxFirst && approxSecond ? 100 : 80, QString::fromStdString( "s = " + std::to_string(data->s)));
-	painter->drawText(0, origin && approxFirst && approxSecond ? 120 : 100, QString::fromStdString( "n = " + std::to_string(data->n)));
-	painter->drawText(0, origin && approxFirst && approxSecond ? 140 : 120, QString::fromStdString( "p = " + std::to_string(data->p)));
 	*/
 }
 
@@ -155,7 +143,32 @@ void DrawArea::drawCoordSystem(QPainter *painter)
 
 }
 
-void DrawArea::drawPoints(QPainter *painter) 
+void DrawArea::drawPointsFirst(QPainter *painter) 
+{
+	QPen bluePen(Qt::darkGreen);
+	bluePen.setWidth(2);
+
+	painter->setPen(bluePen);
+
+	QPointF dx(8., 0.);
+	QPointF dy(0., 8.);
+	
+	int counter  = 0;
+	double x = std::max(xMin, (a+b)/2 + ((b-a)/2) * cos(M_PI*0.5/data->n));
+	double y = functions[data->k].f(x) + (counter == data->n/2  ? data->p*0.1*data->originAbsMax : 0);
+	
+	while (counter < data->n) {
+		QPointF t = mapToPixels(Approx::Point(x, y));
+		painter->drawLine(t-dx, t+dx);
+		painter->drawLine(t-dy, t+dy);
+
+		++counter;
+		x = (a+b)/2 + ((b-a)/2) * cos(M_PI*(counter+0.5)/data->n);
+		y = functions[data->k].f(x) + (counter == data->n/2  ? data->p*0.1*data->originAbsMax : 0);
+	}
+}
+
+void DrawArea::drawPointsSecond(QPainter *painter) 
 {
 	QPen bluePen(Qt::blue);
 	bluePen.setWidth(2);
@@ -179,6 +192,7 @@ void DrawArea::drawPoints(QPainter *painter)
 		y = functions[data->k].f(x) + (counter == data->n/2  ? data->p*0.1*data->originAbsMax : 0);
 	}
 }
+
 
 void DrawArea::drawFunction(QPainter *painter, double (Approx::Approximator::*function)(double)) 
 {
