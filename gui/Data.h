@@ -12,13 +12,11 @@ public:
 	int k;
 	std::string name;
 	double originAbsMax;
-	double polynomAbsMax;
 	double piecePolynomAbsMax;
-	double errorPolynomAbsMax;
 	double errorPiecePolynomAbsMax;
 
-	bool origin, polynom, piecePolynom, error;
-	int s, n, p;
+	bool origin, piecePolynom, error;
+	int s, nx, ny, mx, my, p;
 
 	Data(QObject *parent = nullptr);
 signals:

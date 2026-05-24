@@ -9,7 +9,7 @@
 #include <QLabel>
 
 #include <iostream>
-#include "Data.h"
+#include "gui/Data.h"
 
 class InfoDisplay : public QWidget 
 {
@@ -28,7 +28,7 @@ protected:
 	void paintEvent(QPaintEvent *);
 
 private:
-	void drawInformation(void /*QPainter **/);
+	void drawInformation(void);
 	void drawConsole(void);
 
 public slots:
