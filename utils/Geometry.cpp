@@ -1,68 +1,5 @@
 #include "Geometry.h"
 
-namespace R2Geometry {
-	Vector operator*(const double c, const Vector& v) 
-	{
-		return Vector(c*v.X(), c*v.Y());
-	}
-
-	Point operator* (const double c, const Point& p) 
-	{
-		return Point(c*p.X(), c*p.Y());
-	}
-
-	Vector RVector (const Point& p) 
-	{
-		return Vector(p.X(), p.Y());
-	}
-
-	Point RPoint (const Vector& v) 
-	{
-		return Point(v.X(), v.Y());
-	}
-
-	Vector Point::operator- (const Point &p) const
-	{
-		return Vector(x-p.x, y-p.y);
-	}
-
-	Point Point::operator+ (const Vector &v) const
-	{
-		return Point(x+v.X(), y+v.Y());
-	}
-	
-}
-
-namespace R3Geometry {
-
-	Vector operator*(const double c, const Vector& v) {
-		return Vector(c*v.X(), c*v.Y(), c*v.Z());
-	}
-
-	Point operator* (const double c, const Point& p) {
-		return Point(c*p.X(), c*p.Y(), c*p.Z());
-	}
-
-	Vector RVector (const Point& p) {
-		return Vector(p.X(), p.Y(), p.Z());
-	}
-
-	Point RPoint (const Vector& v) {
-		return Point(v.X(), v.Y(), v.Z());
-	}
-	
-	Point Point::operator+ (const Vector &v) const
-	{
-		return Point(x+v.X(), y+v.Y(), z+v.Z());
-	}
-
-	Vector Point::operator- (const Point &p) const
-	{
-		return Vector(x-p.x, y-p.y, z-p.z);
-	}
-	
-}
-
 Quaternion::Quaternion(double www, double xxx, double yyy, double zzz):
 	w(www), x(xxx), y(yyy), z(zzz)
 {
@@ -130,9 +67,9 @@ Quaternion::Quaternion(double www, double xxx, double yyy, double zzz):
 	*/
 }
 
-Quaternion::Quaternion(const R3Geometry::Vector& axis, double angle)
+Quaternion::Quaternion(const Geometry::Vector<3>& axis, double angle)
 {
-	R3Geometry::Vector n = axis.unit();
+	Geometry::Vector<3> n = axis.unit();
 
 	double half = angle * 0.5;
 	double s = sin(half);
@@ -199,7 +136,7 @@ Quaternion Quaternion::operator*(const Quaternion& rhs) const
 			);
 }
 
-R3Geometry::Vector Quaternion::rotate(const R3Geometry::Vector& v) const
+Geometry::Vector<3> Quaternion::rotate(const Geometry::Vector<3> &v) const
 {
 	return m*v;
 	/*

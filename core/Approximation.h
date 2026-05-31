@@ -1,7 +1,6 @@
 #ifndef APPROXIMATION_H
 #define APPROXIMATION_H
 
-#include "utils/Geometry.h"
 #include "utils/CommonDefs.h"
 #include <cassert>
 #include <vector>

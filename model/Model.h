@@ -3,7 +3,7 @@
 
 #include "gui/GraphWidget.h"
 #include "gui/Data.h"
-#include "utils/Geometry.h"
+#include "utils/CommonDefs.h"
 #include "resources/Storage.h"
 #include "core/Approximation.h"
 

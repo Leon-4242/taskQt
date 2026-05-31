@@ -14,7 +14,6 @@
 #include "gui/Data.h"
 
 #include "utils/CommonDefs.h"
-#include "utils/Geometry.h"
 #include "resources/Storage.h"
 
 class GraphWidget : public QWidget 

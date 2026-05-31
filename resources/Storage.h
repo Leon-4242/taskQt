@@ -6,7 +6,7 @@
 #include <QPointF>
 #include <QColor>
 
-#include "utils/Geometry.h"
+#include "utils/CommonDefs.h"
 
 class Storage : public QObject
 {

@@ -1,6 +1,6 @@
 QT += widgets
 
-CONFIG += c++11
+CONFIG += c++17
 QMAKE_CXXFLAGS += -W -Wall -Werror -Wfloat-equal -Wunused -Wnon-virtual-dtor -isystem $$[QT_INSTALL_HEADERS]
 
 OBJECTS_DIR = build/obj

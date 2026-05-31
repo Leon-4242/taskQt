@@ -1,7 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "utils/Geometry.h"
+#include "utils/CommonDefs.h"
 #include <iostream>
 #include <cmath>
 #include <utility>

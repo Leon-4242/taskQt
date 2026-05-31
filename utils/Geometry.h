@@ -1,354 +1,293 @@
 #ifndef GEOMETRY
 #define GEOMETRY
 
+#include <array>
+#include <type_traits>
 #include <cmath>
+#include <cassert>
 
 #define EPS (1e-15)
 
-namespace R2Geometry {
-
-	class Point;
-	class Vector;
-
-	Vector operator* (const double c, const Vector &v);
-	Point operator* (const double c, const Point &p);
-
-	Vector RVector (const Point &p);
-	Point RPoint (const Vector &v);
-	
-	class Point {
-		double x;
-		double y;
+namespace Geometry {
+	template<typename Derived, std::size_t N>
+	class VectorBase
+	{
+		protected:
+		std::array<double, N> coord;
 
 		public:
-
-		Point (double xx = 0, double yy = 0) {
-			if (fabs(xx) < EPS) x = 0;
-			else x = xx;
-
-			if (fabs(yy) < EPS) y = 0;
-			else y = yy; 
-		}
+		constexpr VectorBase() = default;
 		
-		Point (const Point &p) {
-			x = p.x;
-			y = p.y;
-		}
+		template<typename... Args, typename = std::enable_if_t<sizeof...(Args) == N && (std::is_convertible_v<Args, double> && ...)>>
+		constexpr VectorBase (Args... args) noexcept:
+			coord{static_cast<double>(args)...}
+		{}
 
-		Point (Point &&p) {
-			x = p.x; p.x = 0;
-			y = p.y; p.y = 0;
-		}
+		constexpr explicit VectorBase (std::array<double, N> coord) noexcept:
+			coord(std::move(coord))
+		{}
 
-		Point & operator= (const Point &p) {
-			x = p.x;
-			y = p.y;
-			return *this;
-		}
-
-		Point & operator= (Point &&p) {
-			x = p.x; p.x = 0;
-			y = p.y; p.y = 0;
-			return *this;
-		}
-	
-		double X (void) const {
-			return x;
-		}
-
-		double Y (void) const {
-			return y;
-		}
-
-		Vector operator- (const Point &) const;
-		Point operator+ (const Vector &) const;
-	};
-
-	class Vector {
-		double x;
-		double y;
-
-		public:
-
-		Vector (double xx = 0, double yy = 0) {
-			if (fabs(xx) < EPS) x = 0;
-			else x = xx;
-
-			if (fabs(yy) < EPS) y = 0;
-			else y = yy;
-		}
-
-		Vector (const Vector &v) {
-			x = v.x;
-			y = v.y;
-		}
-
-		Vector (Vector &&v) {
-			x = v.x; v.x = 0;
-			y = v.y; v.y = 0;
-		}
-
-		Vector & operator= (const Vector &v) {
-			x = v.x;
-			y = v.y;
-			return *this;
-		}
-	
-		Vector & operator= (Vector &&v) {
-			x = v.x; v.x = 0;
-			y = v.y; v.y = 0;
-			return *this;
-		}
-
-		double X (void) const{
-			return x;
-		}
-
-		double Y (void) const{
-			return y;
-		}
-
-		Vector operator+ (const Vector &v) const {
-			return Vector(x+v.x, y+v.y);
-		}
-
-		Vector operator- (const Vector &v) const {
-			return Vector(x-v.x, y-v.y);
-		}
-
-		Point operator+ (const Point &p) const {
-			return Point(x+p.X(), y+p.Y());
-		}
-
-		Vector operator+ (void) const {
-			return Vector(x, y);
-		}
-
-		Vector operator- (void) const {
-			return Vector(-x, -y);
-		}
-
-		double operator* (const Vector v) const {
-			return x*v.x+y*v.y;
-		}
-
-		Vector operator* (const double c) const {
-			return Vector(c*x, c*y);
-		}
-
-		double mod (void) const{
-			return sqrt(x*x);
-		}
-
-		Vector n (void) const {
-			return Vector(-y, x);
-		}
-
-		Vector unit (void) const {
-			return Vector(x/this->mod(), y/this->mod());
-		}
-
-		Vector & norm (void) {
-			double len = this->mod();
-			x /= len; y /= len;
-			return *this;
-		}
-	};
-
-}
-
-namespace R3Geometry {
-
-	class Point;
-	class Vector;
-
-	Vector operator* (const double c, const Vector &v);
-	Point operator* (const double c, const Point &p);
-
-	Vector RVector (const Point &p);
-	
-	Point RPoint (const Vector &v);
-	
-	class Point {
-		double x;
-		double y;
-		double z;
-
-		public:
-
-		Point (double xx = 0, double yy = 0, double zz = 0) {
-			if (fabs(xx) < EPS) x = 0;
-			else x = xx;
-
-			if (fabs(yy) < EPS) y = 0;
-			else y = yy; 
-
-			if (fabs(zz) < EPS) z = 0;
-			else z = zz;
-		}
-		
-		Point (const Point &p) {
-			x = p.x;
-			y = p.y;
-			z = p.z;
-		}
-
-		Point (Point &&p) {
-			x = p.x; p.x = 0;
-			y = p.y; p.y = 0;
-			z = p.z; p.z = 0;
-		}
-
-		Point & operator= (const Point &p) {
-			x = p.x;
-			y = p.y;
-			z = p.z;
-			return *this;
-		}
-
-		Point & operator= (Point &&p) {
-			x = p.x; p.x = 0;
-			y = p.y; p.y = 0;
-			z = p.z; p.z = 0;
-			return *this;
-		}
-	
-		double X (void) const {
-			return x;
-		}
-
-		double Y (void) const {
-			return y;
-		}
-
-		double Z (void) const {
-			return z;
-		}
-
-		Point operator+ (const Point &p) const
+		constexpr VectorBase (std::initializer_list<double> list) noexcept
 		{
-			return Point(x+p.x, y+p.y, z+p.z);
+			assert(N == list.size());
+			std::copy(list.begin(), list.end(), coord.begin());
 		}
 
-		Point operator+ (const Vector &) const;
-		Vector operator- (const Point &) const;
+		constexpr VectorBase (const VectorBase &v) = default;
+		constexpr VectorBase (VectorBase &&v) = default;
+
+		constexpr VectorBase & operator= (const VectorBase &v) = default;
+		constexpr VectorBase & operator= (VectorBase &&v) = default;
+
+		constexpr double operator[] (std::size_t k) const noexcept
+		{
+			return coord[k];
+		}
+	
+		constexpr double& operator[] (std::size_t k) noexcept
+		{
+		return coord[k];
+		}
 		
-		Point & operator+= (const Vector &v) {
-			*this = *this + v;
-			return *this;
+		constexpr Derived & derived() noexcept
+		{
+			return static_cast<Derived &>(*this);
+		}
+
+		constexpr const Derived & derived() const noexcept
+		{
+			return static_cast<const Derived &>(*this);
+		}
+		
+		[[nodiscard]] constexpr Derived operator+ () const noexcept
+		{
+			return derived();
+		}
+
+		[[nodiscard]] constexpr Derived operator- () const noexcept
+		{
+			Derived v(derived());
+			for (std::size_t i{}; i < N; ++i) {
+				v[i] = -v[i];
+			}
+			return v;
+		}
+
+		[[nodiscard]] constexpr Derived operator+ (const Derived &v) const noexcept
+		{	
+			Derived res(derived());
+			for (std::size_t i{}; i < N; ++i) {
+				res[i] += v[i];
+			}
+			return res;
+		}
+
+		[[nodiscard]] constexpr Derived operator- (const Derived &v) const noexcept
+		{	
+			Derived res(derived());
+			for (std::size_t i{}; i < N; ++i) {
+				res[i] -= v[i];
+			}
+			return res;
+		}
+
+		[[nodiscard]] constexpr Derived operator* (double c) const noexcept
+		{
+			Derived res(derived());
+			for (std::size_t i{}; i < N; ++i) {
+				res[i] *= c;
+			}
+			return res;
+		}
+
+		[[nodiscard]] constexpr Derived operator/ (double c) const noexcept
+		{
+			Derived res(derived());
+			for (std::size_t i{}; i < N; ++i){
+				res[i] /= c;
+			}
+			return res;
+		}
+
+		constexpr Derived & operator+= (const Derived &v) noexcept
+		{	
+			for (std::size_t i{}; i < N; ++i) {
+				coord[i] += v[i];
+			}
+			return derived();
+		}
+
+		constexpr Derived & operator-= (const Derived &v) noexcept
+		{
+			for (std::size_t i{}; i < N; ++i) {
+				coord[i] -= v[i];
+			}
+			return derived();
 		}
 	
-		double mod (void) const{
-			return sqrt(x*x+y*y+z*z);
+		constexpr Derived & operator*= (double c) noexcept
+		{
+			for (std::size_t i{}; i < N; ++i){
+				coord[i] *= c;
+			}
+			return derived();
 		}
+
+		constexpr Derived & operator/= (double c) noexcept
+		{
+			for (std::size_t i{}; i < N; ++i){
+				coord[i] /= c;
+			}
+			return derived();
+		}
+		
+		constexpr bool operator==(const Derived &v) const
+		{
+			return coord == v.coord;
+		}
+
+		constexpr bool operator!=(const Derived &v) const
+		{
+			return coord != v.coord;
+		}
+
+		[[nodiscard]] constexpr double mod () const noexcept
+		{
+			auto const &self = derived();
+			double res{};
+			for (std::size_t i{}; i < N; ++i) {
+				res += self[i]*self[i];
+			}
+			return std::sqrt(res);
+		}
+
+		[[nodiscard]] constexpr Derived unit() const noexcept
+		{
+			return derived() / mod();
+		}
+
+		constexpr Derived & norm() noexcept
+		{
+			return derived() = unit();
+		}
+	
+		constexpr double X () const noexcept
+		{
+			static_assert (N >= 1);
+			return coord[0];
+		}
+	
+		constexpr double & X () noexcept
+		{
+			static_assert (N >= 1);
+			return coord[0];
+		}
+	
+		constexpr double Y () const noexcept
+		{
+			static_assert (N >= 2);
+			return coord[1];
+		}
+		constexpr double & Y () noexcept
+		{
+			static_assert(N >= 2);
+			return coord[1];
+		}
+		
+		constexpr double Z () const noexcept
+		{
+			static_assert (N >= 3);
+			return coord[2];
+		}
+		constexpr double & Z () noexcept
+		{
+			static_assert(N >= 3);
+			return coord[2];
+		}
+
 	};
 
-	class Vector {
-		double x;
-		double y;
-		double z;
+	template<typename Derived, std::size_t N>
+	constexpr Derived operator* (double c, const VectorBase<Derived, N> &v) noexcept
+	{
+		Derived res(v.derived());
+		for (std::size_t i{}; i < N; ++i) {
+			res[i] *= c;
+		}
+		return res;
+	}
 
+	template<std::size_t N>
+	class Vector;
+	template<std::size_t N>
+	class Point;
+
+	template<std::size_t N>
+	class Vector: public VectorBase<Vector<N>, N>
+	{
+		friend Point<N>;
 		public:
+		using VectorBase<Vector<N>, N>::VectorBase;
+		
+		[[nodiscard]] constexpr Vector(const Point<N> &p) noexcept:
+			VectorBase<Vector<N>, N>(p.coord)
+		{}
 
-		Vector (double xx = 0, double yy = 0, double zz = 0) {
-			if (fabs(xx) < EPS) x = 0;
-			else x = xx;
-
-			if (fabs(yy) < EPS) y = 0;
-			else y = yy;
-
-			if (fabs(zz) < EPS) z = 0;
-			else z = zz;
-		}
-
-		Vector (const Vector &v) {
-			x = v.x;
-			y = v.y;
-			z = v.z;
-		}
-
-		Vector (Vector &&v) {
-			x = v.x; v.x = 0;
-			y = v.y; v.y = 0;
-			z = v.z; v.z = 0;
-		}
-
-		Vector & operator= (const Vector &v) {
-			x = v.x;
-			y = v.y;
-			z = v.z;
-			return *this;
+		[[nodiscard]] inline constexpr Vector vect (const Vector &v) const 
+		{
+			static_assert(N == 3);
+			return Vector(this->Y()*v.Z()-this->Z()*v.Y(), this->Z()*v.X() - this->X()*v.Z(), this->X()*v.Y() - this->Y()*v.X());
 		}
 	
-		Vector & operator= (Vector &&v) {
-			x = v.x; v.x = 0;
-			y = v.y; v.y = 0;
-			z = v.z; v.z = 0;
-			return *this;
-		}
-
-		double X (void) const{
-			return x;
-		}
-
-		double Y (void) const{
-			return y;
-		}
-
-		double Z (void) const{
-			return z;
-		}
-
-		Vector operator+ (const Vector &v) const {
-			return Vector(x+v.x, y+v.y, z+v.z);
-		}
-
-		Vector operator- (const Vector &v) const {
-			return Vector(x-v.x, y-v.y, z-v.z);
-		}
-
-		Point operator+ (const Point &p) const {
-			return Point(x+p.X(), y+p.Y(), z+p.Z());
-		}
-
-		Vector operator+ (void) const {
-			return Vector(x, y, z);
-		}
-
-		Vector operator- (void) const {
-			return Vector(-x, -y, -z);
-		}
-
-		double operator* (const Vector &v) const {
-			return x*v.x+y*v.y+z*v.z;
-		}
-
-		Vector operator* (const double c) const {
-			return Vector(c*x, c*y, c*z);
-		}
-
-		double mod (void) const{
-			return sqrt(x*x+y*y+z*z);
-		}
-
-		Vector n (void) const {
-			return Vector(-y, x, 0);
-		}
-
-		inline Vector unit (void) const {
-			return Vector(x/this->mod(), y/this->mod(), z/this->mod());
-		}
-
-		inline Vector & norm (void) {
-			double len = this->mod();
-			x /= len; y /= len; z /= len;
-			return *this;
-		}
-
-		inline Vector vect (const Vector &v) const {
-			return Vector(y*v.z-z*v.y, z*v.x - x*v.z, x*v.y - y*v.x);
+		[[nodiscard]] constexpr double operator* (const Vector &v) const noexcept
+		{
+			double res{};
+			for (std::size_t i{}; i < N; ++i) {
+				res += this->coord[i]*v[i];
+			}
+			return res;
 		}
 	};
+
+	template<std::size_t N>
+	constexpr Vector<N> operator* (double c, const Vector<N> &v) noexcept
+	{
+		Vector<N> res(v);
+		for (std::size_t i{}; i < N; ++i) {
+			res[i] *= c;
+		}
+		return res;
+	}
+
+	template<std::size_t N>
+	class Point: public VectorBase<Point<N>, N>
+	{
+		friend Vector<N>;
+		public:
+		using VectorBase<Point<N>, N>::VectorBase;
+		[[nodiscard]] constexpr Point(const Vector<N> &v) noexcept:
+			VectorBase<Point<N>, N>(v.coord)
+		{}
+	
+		[[nodiscard]] constexpr Vector<N> operator- (const Point &p) const noexcept
+		{	
+			Vector<N> res(this->coord);
+			for (std::size_t i{}; i < N; ++i) {
+				res[i] -= p[i];
+			}
+			return res;
+		}
+	};
+
+	template<std::size_t N>
+	constexpr Point<N> operator* (double c, const Point<N> &p) noexcept
+	{
+		Point<N> res(p);
+		for (std::size_t i{}; i < N; ++i) {
+			res[i] *= c;
+		}
+		return res;
+	}
 
 }
 
@@ -358,7 +297,7 @@ class Quaternion {
 	using Mat = struct Matrix3
 	{
 		double m[3][3];
-		R3Geometry::Vector operator* (const R3Geometry::Vector &v) const noexcept
+		Geometry::Vector<3> operator* (const Geometry::Vector<3> &v) const noexcept
 		{
 			return {
 				m[0][0]*v.X() + m[0][1]*v.Y() + m[0][2]*v.Z(),
@@ -373,7 +312,7 @@ class Quaternion {
 	double w, x, y, z;
 
 	Quaternion (double w, double x, double y, double z);
-	Quaternion (const R3Geometry::Vector &axis, double angle);
+	Quaternion (const Geometry::Vector<3> &axis, double angle);
 
 	void normalize ();
 
@@ -382,7 +321,7 @@ class Quaternion {
 
 	Quaternion operator* (const Quaternion &rhs) const;
 
-	R3Geometry::Vector rotate (const R3Geometry::Vector &v) const;
+	Geometry::Vector<3> rotate (const Geometry::Vector<3> &v) const;
 };
 
 #endif
