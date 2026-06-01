@@ -16,7 +16,8 @@ public:
 	double errorPiecePolynomAbsMax;
 
 	bool origin, piecePolynom, error;
-	int s, nx, ny, mx, my, p;
+	int s, p;
+	std::size_t nx, ny, mx, my;
 
 	Data(QObject *parent = nullptr);
 signals:

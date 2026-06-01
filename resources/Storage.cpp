@@ -28,31 +28,29 @@ Storage::Triangle & Storage::Triangle::operator= (Storage::Triangle && tr)
 
 Storage::Storage(QObject *object):
 	QObject(object)
-{
-}
+{}
 
 Storage::Mesh * Storage::renderrAccess(void)
 {
-	if (active)
-		currentFrame = readyFrame;
-
 	return &currentFrame;
 }
 
 Storage::Mesh * Storage::getAccess(void)
 {
-	active = false;
 	return &newFrame;
 }
 
-void Storage::update(void) 
+void Storage::updatedMesh()
 {
-	readyFrame = newFrame;
-	active = true;
-	emit updated();
+	readyFrame.swap(newFrame);
+	updateable = true;
+	emit update();
 }
 
-std::vector<Storage::Polygon> & Storage::poly(void)
+void Storage::updateRenderr()
 {
-	return polygons;
+	if (updateable) {
+		currentFrame.swap(readyFrame);
+		updateable = false;
+	}
 }

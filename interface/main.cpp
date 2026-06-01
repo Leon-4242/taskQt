@@ -19,7 +19,9 @@ static
 int parse_command_line (
 		int argc, char **argv, 
 		double &a, double &b, double &c, double &d, 
-		int &nx, int &ny, int &mx, int &my, int &k)
+		std::size_t &nx, std::size_t &ny, 
+		std::size_t &mx, std::size_t &my, 
+		int &k)
 {
     if (argc == 1)
         return 0;
@@ -86,10 +88,10 @@ int main (int argc, char **argv) {
 	double c = DEFAULT_C;
 	double d = DEFAULT_D;
 
-	int nx = DEFAULT_NX;
-	int ny = DEFAULT_NY;
-	int mx = DEFAULT_MX;
-	int my = DEFAULT_MY;
+	std::size_t nx = DEFAULT_NX, 
+	ny = DEFAULT_NY,
+	mx = DEFAULT_MX,
+	my = DEFAULT_MY;
 
 	int k = DEFAULT_K;
 

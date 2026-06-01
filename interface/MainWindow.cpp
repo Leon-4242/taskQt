@@ -1,30 +1,32 @@
 #include "MainWindow.h"
 #include <locale.h>
 
-MainWindow::MainWindow(double ax, double bx, double ay, double by, int nx, int ny, int mx, int my, int k, QWidget *parent): QMainWindow(parent)
+MainWindow::MainWindow(
+		double ax, double bx, double ay, double by, 
+		std::size_t nx, std::size_t ny, 
+		std::size_t mx, std::size_t my, 
+		int k, QWidget *parent): QMainWindow(parent)
 {
     setlocale(LC_ALL, "C");
 	
 	storage = new Storage(this);
 	data = new Data(this);
-
-	model = new Model(ax, bx, ay, by, nx, ny, mx, my, k, storage, data, this);
-
+	model = new Model(ax, bx, ay, by, nx, ny, mx, my, k, storage->getAccess(), data, this);
 	central = new QWidget(this);
-	GUI = new GraphWidget (this, ax, bx, ay, by, storage, data);
+	GUI = new GraphWidget (this, ax, bx, ay, by, storage->renderrAccess(), data);
 	infoDisplay = new InfoDisplay(this, data);
-
-	infoDisplay->setFixedWidth(250);
-
 	QHBoxLayout *layout = new QHBoxLayout(central);
 
+	infoDisplay->setFixedWidth(250);
 	layout->setSpacing(0);
 	layout->setContentsMargins(0, 0, 0, 0);
-
 	layout->addWidget(GUI);
 	layout->addWidget(infoDisplay);
 
 	setCentralWidget (central);
+
+	setConnection();
+	model->updateMesh();
 
 	QMenu *fileMenu = menuBar()->addMenu("&File");
 	QMenu *funcMenu = menuBar()->addMenu("&Function");
@@ -73,4 +75,12 @@ MainWindow::MainWindow(double ax, double bx, double ay, double by, int nx, int n
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::setConnection()
+{
+	connect(model, &Model::updateMesh, storage, &Storage::updatedMesh);
+	connect(GUI, &GraphWidget::updateRenderr, storage, &Storage::updateRenderr);
+
+	connect(storage, &Storage::update, GUI, &GraphWidget::updated);
 }

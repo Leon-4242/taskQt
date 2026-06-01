@@ -17,16 +17,20 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
     public:
-        explicit MainWindow(double, double, double, double, int, int, int, int, int, QWidget *parent = nullptr);
-        ~MainWindow();
+    
+	explicit MainWindow(double, double, double, double, std::size_t, std::size_t, std::size_t, std::size_t, int, QWidget *parent = nullptr);
+    ~MainWindow();
 
     private:
-		QWidget *central;
-		GraphWidget *GUI;
-		Model *model;
-		Storage *storage;
-		InfoDisplay *infoDisplay;
-		Data *data;
+		
+	QWidget *central;
+	GraphWidget *GUI;
+	Model *model;
+	Storage *storage;
+	InfoDisplay *infoDisplay;
+	Data *data;
+
+	void setConnection();
 };
 
 #endif // MAINWINDOW_H

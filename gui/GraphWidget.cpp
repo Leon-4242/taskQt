@@ -1,8 +1,8 @@
 #include "GraphWidget.h"
 
-GraphWidget::GraphWidget (QWidget *parent, double ax, double bx, double ay, double by, Storage *storage, Data *data) :
+GraphWidget::GraphWidget (QWidget *parent, double ax, double bx, double ay, double by, Storage::Mesh *mesh, Data *data) :
 	QWidget(parent),
-	storage(storage), data(data),
+	mesh(mesh), data(data),
 	bgColor(Qt::lightGray),
 	dist(2*sqrt((bx-ax)*(bx-ax) + (by-ay)*(by-ay) + 4)),
 	center((ax+bx)/2, (ay+by)/2, 0),
@@ -11,7 +11,6 @@ GraphWidget::GraphWidget (QWidget *parent, double ax, double bx, double ay, doub
 	light(lightPos)
 {
 	setAttribute(Qt::WA_StaticContents); // for optimizing painting events
-	connect(storage, &Storage::updated, this, &GraphWidget::updated);
 	w = width();
 	h = height();
 	camera.setAspect(w * (1.0)/h);
@@ -27,9 +26,9 @@ void GraphWidget::paintEvent(QPaintEvent *event)
 	initializeMap();
 	drawCoordSystem(&painter);
 
-	auto mesh = storage->renderrAccess();
-	
+	emit updateRenderr();
 	drawMesh(&painter, mesh->triangles, mesh->points);
+	
 	painter.drawText(20, 20, QString::fromStdString(camera.orien()));	
 	event->accept();
 }
@@ -111,7 +110,6 @@ void GraphWidget::drawMesh(QPainter *painter, const std::vector<Storage::Triangl
 {
 	QColor currColor;
 
-	auto polygons = storage->poly();
 	polygons.clear();
 
 	for (const auto& tr : triangles) {
@@ -273,4 +271,9 @@ QSize GraphWidget::minimumSizeHint () const
 QSize GraphWidget::sizeHint () const
 {
   return QSize (1000, 1000);
+}
+
+void GraphWidget::updated() 
+{
+	update();
 }

@@ -36,41 +36,52 @@ class Storage : public QObject
 
 	};
 
-	private:
 	class Mesh
 	{
 		public:
 		
 		std::vector<R3Geometry::Point> points;
 		std::vector<Triangle> triangles; 
+		
 		Mesh(void)
-		{
-		}
+		{}
 
-		Mesh& operator= (const Mesh& mesh)
+		Mesh& operator= (const Mesh &mesh)
 		{
 			points = mesh.points;
 			triangles = mesh.triangles;
 			return *this;
 		}
+
+		void swap (Mesh &mesh)
+		{
+			points.swap(mesh.points);
+			triangles.swap(mesh.triangles);
+		}
 	};
 
-	bool active;
+	private:
+
+	bool updateable;
 	Mesh currentFrame;
 	Mesh readyFrame;
 	Mesh newFrame;
 
-	std::vector<Polygon> polygons;
 	public:
+
 	Storage(QObject *object = nullptr);
 
-	Mesh * renderrAccess(void);
-	Mesh * getAccess(void);
-	std::vector<Polygon> & poly(void);
-	void update(void);
+	Mesh * renderrAccess();
+	Mesh * getAccess();
+
+	public slots:
+
+	void updatedMesh();
+	void updateRenderr();
 
 	signals:
-	void updated();
+
+	void update();
 };
 
 #endif //STORAGE_H

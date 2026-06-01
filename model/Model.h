@@ -10,7 +10,7 @@
 class Model : public QObject 
 {
 	Q_OBJECT
-private:
+	private:
 	
 	class Function {
 		public:
@@ -21,33 +21,35 @@ private:
 
 	GraphWidget *graphWidget;
 	
-	int nx, ny;
-	int mx, my;
+	std::size_t nx, ny;
+	std::size_t mx, my;
 
 	double ax, bx;
 	double ay, by;
 
 	std::vector<Function> functions;
 
-	Storage *storage;
+	Storage::Mesh *mesh;
 	Data *data;
 
 	Approx::Approximator approximator;
-public:
-	Model(double, double, double, double, int, int, int, int, int, Storage *, Data *, QObject *);
 	
-	void errorUp(void);
-	void errorDown(void);
+	public:
+	Model(double, double, double, double, std::size_t, std::size_t, std::size_t, std::size_t, int, Storage::Mesh *, Data *, QObject *);
 	
-	void changeFunc(void);
-	void changeMode(void);
-	void downTriangulation(void);
-	void upTriangulation(void);
+	void errorUp();
+	void errorDown();
+	
+	void changeFunc();
+	void changeMode();
+	void downTriangulation();
+	void upTriangulation();
 
-	void numberDown(void);
-	void numberUp(void);
-private:
-	void updateBound(void);
+	void numberDown();
+	void numberUp();
+	
+	private:
+	void updateBound();
 
 	void remake(std::vector<R3Geometry::Point> &, double (Approx::Approximator::*) (double, double));
 	
@@ -55,8 +57,10 @@ private:
 	void makeApprox(std::vector<R3Geometry::Point> &);
 	void makeResudial(std::vector<R3Geometry::Point> &);
 	
-	void update(void);
-	void updateFull(void);
+	void update();
+	
+	signals:
+	void updateMesh();
 };
 
 #endif // MODEl_H

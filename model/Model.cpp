@@ -3,13 +3,17 @@
 Model::Function::Function (std::string name, double(*f)(double, double)): name(name), f(f)
 {}
 
-Model::Model (double ax, double bx, double ay, double by, int nx, int ny, int mx, int my, int k, Storage *storage, Data *data, QObject *parent = nullptr) :
+Model::Model (
+		double ax, double bx, double ay, double by, 
+		std::size_t nx, std::size_t ny, 
+		std::size_t mx, std::size_t my, int k, 
+		Storage::Mesh *mesh, Data *data, QObject *parent = nullptr) :
 	QObject(parent),
 	nx(nx), ny(ny),
 	mx(mx), my(my),
 	ax(ax), bx(bx),
 	ay(ay), by(by),
-	storage(storage), data(data),
+	mesh(mesh), data(data),
 	approximator(ax, bx, ay, by, nx, ny)
 {	
 	functions = std::vector<Function>
@@ -42,7 +46,7 @@ Model::Model (double ax, double bx, double ay, double by, int nx, int ny, int mx
 	approximator.setFunction(functions[data->k].f);
 	updateBound();
 
-	updateFull();
+	update();
 }
 
 void Model::changeFunc(void)
@@ -110,7 +114,7 @@ void Model::downTriangulation(void)
 
 		emit data->changed();
 	
-		updateFull();
+		update();
 	}
 }
 
@@ -125,7 +129,7 @@ void Model::upTriangulation(void)
 
 		emit data->changed();
 
-		updateFull();
+		update();
 	}
 }
 
@@ -196,8 +200,8 @@ void Model::numberUp(void)
 void Model::remake(std::vector<R3Geometry::Point> &points, double (Approx::Approximator::*f) (double, double))
 {
 	double dx = (bx-ax)/(mx-1), dy = (by-ay)/(my-1);
-	for (int i = 0; i < mx; ++i) {
-		for (int j = 0; j < my; ++j) {
+	for (std::size_t i{}; i < mx; ++i) {
+		for (std::size_t j{}; j < my; ++j) {
 			points[i*my + j] = R3Geometry::Point(ax+i*dx, ay+j*dy, (approximator.*f)(ax+i*dx, ay+j*dy) );
 		}
 	}
@@ -220,21 +224,6 @@ void Model::makeResudial(std::vector<R3Geometry::Point> &points)
 
 void Model::update(void)
 {
-	auto mesh = storage->getAccess();
-
-	if (data->origin)
-		makeOrigin(mesh->points);
-	if (data->piecePolynom)
-		makeApprox(mesh->points);
-	if (data->error)
-		makeResudial(mesh->points);
-	storage->update();
-}
-
-void Model::updateFull(void)
-{
-	auto mesh = storage->getAccess();
-
 	mesh->points.resize(mx*my);
 
 	if (data->origin)
@@ -244,13 +233,14 @@ void Model::updateFull(void)
 	if (data->error)
 		makeResudial(mesh->points);
 
-	mesh->triangles.resize((mx-1)*(my-1)*2);
-	for (int i = 0; i < mx-1; ++i) {
-		for (int j = 0; j < my-1; ++j) {
-			mesh->triangles[2*(i*(my-1) + j)] = Storage::Triangle(i*my+j, i*my+j+1, (i+1)*my+j, 0);
-			mesh->triangles[2*(i*(my-1) + j)+1] = Storage::Triangle(i*my+j+1, (i+1)*my+j+1, (i+1)*my+j, 0);
+	if (mesh->triangles.size() != (mx-1)*(my-1)*2) {
+		mesh->triangles.resize((mx-1)*(my-1)*2);
+		for (std::size_t i{}; i < mx-1; ++i) {
+			for (std::size_t j{}; j < my-1; ++j) {
+				mesh->triangles[2*(i*(my-1) + j)] = Storage::Triangle(i*my+j, i*my+j+1, (i+1)*my+j, 0);
+				mesh->triangles[2*(i*(my-1) + j)+1] = Storage::Triangle(i*my+j+1, (i+1)*my+j+1, (i+1)*my+j, 0);
+			}
 		}
 	}
-
-	storage->update();
+	emit updateMesh();
 }

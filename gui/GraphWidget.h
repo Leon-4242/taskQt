@@ -19,23 +19,21 @@
 class GraphWidget : public QWidget 
 {
 	Q_OBJECT
-private:
+	
+	private:
+	
 	using Polygon = Storage::Polygon;
 
-	Storage *storage;
+	Storage::Mesh *mesh;
+	std::vector<Storage::Polygon> polygons;
 	Data *data;
-
 	QColor bgColor;
-
 	int w, h;
 	double dist;
-
 	R3Geometry::Point center;
 	Camera camera;
-
 	R3Geometry::Point lightPos;
 	PointLight light;
-
 	bool rotating = false;
 	QPoint lastMousePos;
 
@@ -43,27 +41,25 @@ private:
 	Polygon segToPixels(const R3Geometry::Point &, const R3Geometry::Point &) const;
 	Polygon triangleToPixels(const R3Geometry::Point &, const R3Geometry::Point &, const R3Geometry::Point &) const;
 
-public:
-	GraphWidget(QWidget *, double, double, double, double, Storage *, Data *);
-
+	public:
+	
+	GraphWidget(QWidget *, double, double, double, double, Storage::Mesh *, Data *);
 	void scaleUp();
 	void scaleDown();
-
 	void rotateLeft();
 	void rotateRight();
-	
 	QSize minimumSizeHint() const;
 	QSize sizeHint() const;
 
-protected:
+	protected:
+	
 	void paintEvent(QPaintEvent *);
 	void resizeEvent(QResizeEvent *);
 
-private:
-	void drawCoordSystem(QPainter *);
-	
-	void drawMesh(QPainter *, const std::vector<Storage::Triangle> &, const std::vector<R3Geometry::Point> &);
+	private:
 
+	void drawCoordSystem(QPainter *);
+	void drawMesh(QPainter *, const std::vector<Storage::Triangle> &, const std::vector<R3Geometry::Point> &);
 	void mousePressEvent(QMouseEvent *);
 	void mouseReleaseEvent(QMouseEvent *);
 	void mouseMoveEvent(QMouseEvent *);
@@ -73,11 +69,12 @@ private:
 	void initializeMap();
 
 	QColor converstion(const PointLight::Color &) const;
-private slots:
-	void updated(void) 
-	{
-		update();
-	}
+
+	public slots:
+	void updated();
+
+	signals:
+	void updateRenderr();	
 };
 
 #endif // GRAPHWIDGET_H
