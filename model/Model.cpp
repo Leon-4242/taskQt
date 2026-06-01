@@ -7,7 +7,7 @@ Model::Model (
 		double ax, double bx, double ay, double by, 
 		std::size_t nx, std::size_t ny, 
 		std::size_t mx, std::size_t my, int k, 
-		Storage::Mesh *mesh, Data *data, QObject *parent = nullptr) :
+		Mesh *mesh, Data *data, QObject *parent = nullptr) :
 	QObject(parent),
 	nx(nx), ny(ny),
 	mx(mx), my(my),
@@ -237,8 +237,8 @@ void Model::update(void)
 		mesh->triangles.resize((mx-1)*(my-1)*2);
 		for (std::size_t i{}; i < mx-1; ++i) {
 			for (std::size_t j{}; j < my-1; ++j) {
-				mesh->triangles[2*(i*(my-1) + j)] = Storage::Triangle(i*my+j, i*my+j+1, (i+1)*my+j, 0);
-				mesh->triangles[2*(i*(my-1) + j)+1] = Storage::Triangle(i*my+j+1, (i+1)*my+j+1, (i+1)*my+j, 0);
+				mesh->triangles[2*(i*(my-1) + j)] = Mesh::Triangle(i*my+j, i*my+j+1, (i+1)*my+j, 0);
+				mesh->triangles[2*(i*(my-1) + j)+1] = Mesh::Triangle(i*my+j+1, (i+1)*my+j+1, (i+1)*my+j, 0);
 			}
 		}
 	}

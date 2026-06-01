@@ -1,6 +1,6 @@
 #include "GraphWidget.h"
 
-GraphWidget::GraphWidget (QWidget *parent, double ax, double bx, double ay, double by, Storage::Mesh *mesh, Data *data) :
+GraphWidget::GraphWidget (QWidget *parent, double ax, double bx, double ay, double by, Mesh *mesh, Data *data) :
 	QWidget(parent),
 	mesh(mesh), data(data),
 	bgColor(Qt::lightGray),
@@ -106,7 +106,7 @@ void GraphWidget::drawCoordSystem(QPainter *painter)
 	*/
 }
 
-void GraphWidget::drawMesh(QPainter *painter, const std::vector<Storage::Triangle> &triangles, const std::vector<R3Geometry::Point> &points)
+void GraphWidget::drawMesh(QPainter *painter, const std::vector<Mesh::Triangle> &triangles, const std::vector<R3Geometry::Point> &points)
 {
 	QColor currColor;
 
@@ -116,7 +116,7 @@ void GraphWidget::drawMesh(QPainter *painter, const std::vector<Storage::Triangl
 		polygons.push_back(triangleToPixels(points[tr.a], points[tr.b], points[tr.c]));
 	}
 
-	std::sort(polygons.begin(), polygons.end(), [](const Storage::Polygon &a, const Storage::Polygon &b) {return a.depth < b.depth;});
+	std::sort(polygons.begin(), polygons.end(), [](const Polygon &a, const Polygon &b) {return a.depth < b.depth;});
 
 	for (const auto& poly : polygons) {
 		if (!poly.visible) 

@@ -1,10 +1,8 @@
 #ifndef MODEL_H
 #define MODEl_H
 
-#include "gui/GraphWidget.h"
 #include "gui/Data.h"
 #include "utils/CommonDefs.h"
-#include "resources/Storage.h"
 #include "core/Approximation.h"
 
 class Model : public QObject 
@@ -18,8 +16,6 @@ class Model : public QObject
 		double (*f)(double, double);
 		Function(std::string, double (*)(double, double));
 	};
-
-	GraphWidget *graphWidget;
 	
 	std::size_t nx, ny;
 	std::size_t mx, my;
@@ -29,13 +25,13 @@ class Model : public QObject
 
 	std::vector<Function> functions;
 
-	Storage::Mesh *mesh;
+	Mesh *mesh;
 	Data *data;
 
 	Approx::Approximator approximator;
 	
 	public:
-	Model(double, double, double, double, std::size_t, std::size_t, std::size_t, std::size_t, int, Storage::Mesh *, Data *, QObject *);
+	Model(double, double, double, double, std::size_t, std::size_t, std::size_t, std::size_t, int, Mesh *, Data *, QObject *);
 	
 	void errorUp();
 	void errorDown();

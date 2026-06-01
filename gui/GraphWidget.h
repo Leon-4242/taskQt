@@ -14,18 +14,23 @@
 #include "gui/Data.h"
 
 #include "utils/CommonDefs.h"
-#include "resources/Storage.h"
 
 class GraphWidget : public QWidget 
 {
 	Q_OBJECT
 	
 	private:
-	
-	using Polygon = Storage::Polygon;
+	using Polygon = struct 
+	{
+		QPointF vertex[4];
+		int n;
+		double depth;
+		QColor color;
+		bool visible;
+	};
 
-	Storage::Mesh *mesh;
-	std::vector<Storage::Polygon> polygons;
+	Mesh *mesh;
+	std::vector<Polygon> polygons;
 	Data *data;
 	QColor bgColor;
 	int w, h;
@@ -43,7 +48,7 @@ class GraphWidget : public QWidget
 
 	public:
 	
-	GraphWidget(QWidget *, double, double, double, double, Storage::Mesh *, Data *);
+	GraphWidget(QWidget *, double, double, double, double, Mesh *, Data *);
 	void scaleUp();
 	void scaleDown();
 	void rotateLeft();
@@ -59,7 +64,7 @@ class GraphWidget : public QWidget
 	private:
 
 	void drawCoordSystem(QPainter *);
-	void drawMesh(QPainter *, const std::vector<Storage::Triangle> &, const std::vector<R3Geometry::Point> &);
+	void drawMesh(QPainter *, const std::vector<Mesh::Triangle> &, const std::vector<R3Geometry::Point> &);
 	void mousePressEvent(QMouseEvent *);
 	void mouseReleaseEvent(QMouseEvent *);
 	void mouseMoveEvent(QMouseEvent *);

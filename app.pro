@@ -32,7 +32,7 @@ RESOURCES_H = resources/Storage.h
 RESOURCES_S = resources/Storage.cpp
 
 UTILS_H = utils/Geometry.h utils/CommonDefs.h
-UTILS_S = utils/Geometry.cpp
+UTILS_S = utils/Geometry.cpp utils/CommonDefs.cpp
 
 EXTRA_DEBUG = utils/trapfpe_gcc.c
 
