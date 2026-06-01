@@ -41,8 +41,7 @@ Model::Model (
 	data->my = my;
 	data->p = 0;
 
-	emit data->changed();
-
+	emit updateData();
 	approximator.setFunction(functions[data->k].f);
 	updateBound();
 
@@ -56,7 +55,7 @@ void Model::changeFunc(void)
 
 	data->p = 0;
 	
-	emit data->changed();
+	emit updateData();
 
 	approximator.setFunction(functions[data->k].f);
 
@@ -81,7 +80,7 @@ void Model::updateBound(void)
 		data->errorPiecePolynomAbsMax = std::max(fabs(buff.first), fabs(buff.second));
 	}
 
-	emit data->changed();
+	emit updateData();
 }
 
 void Model::changeMode(void)
@@ -96,7 +95,7 @@ void Model::changeMode(void)
 		data->error = !(data->origin = data->error);
 	}		
 
-	emit data->changed();
+	emit updateData();
 
 	updateBound();
 
@@ -112,7 +111,8 @@ void Model::downTriangulation(void)
 		data->mx = mx;
 		data->my = my;
 
-		emit data->changed();
+		emit updateData();
+
 	
 		update();
 	}
@@ -127,7 +127,7 @@ void Model::upTriangulation(void)
 		data->mx = mx;
 		data->my = my;
 
-		emit data->changed();
+		emit updateData();
 
 		update();
 	}
@@ -139,7 +139,7 @@ void Model::errorUp()
 		++(data->p);
 		approximator.setError(data->p*0.1*data->originAbsMax);
 		
-		emit data->changed();
+		emit updateData();
 
 		updateBound();
 		update();
@@ -153,7 +153,7 @@ void Model::errorDown()
 		--(data->p);
 		approximator.setError(data->p*0.1*data->originAbsMax);
 
-		emit data->changed();
+		emit updateData();
 
 		updateBound();
 		update();
@@ -169,8 +169,8 @@ void Model::numberDown(void)
 		data->nx = nx;
 		data->ny = ny;
 
-		emit data->changed();
-	
+		emit updateData();
+
 		approximator.setN(nx, ny);
 
 		updateBound();
@@ -187,8 +187,8 @@ void Model::numberUp(void)
 		data->nx = nx;
 		data->ny = ny;
 
-		emit data->changed();
-	
+		emit updateData();
+
 		approximator.setN(nx, ny);
 
 		updateBound();

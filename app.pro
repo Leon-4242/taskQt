@@ -19,8 +19,8 @@ CONFIG(release, debug|release) {
 CORE_H = core/Approximation.h 
 CORE_S = core/Approximation.cpp
 
-GUI_H = gui/GraphWidget.h gui/3DRender.h gui/Data.h gui/InfoDisplay.h
-GUI_S = gui/GraphWidget.cpp gui/3DRender.cpp gui/Data.cpp gui/InfoDisplay.cpp
+GUI_H = gui/GraphWidget.h gui/3DRender.h gui/InfoDisplay.h
+GUI_S = gui/GraphWidget.cpp gui/3DRender.cpp gui/InfoDisplay.cpp
 
 MODEL_H = model/Model.h
 MODEL_S = model/Model.cpp

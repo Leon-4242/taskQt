@@ -3,9 +3,9 @@
 
 #define EPSILON_FOR_COMPARE (1e-15)
 
+#include <vector>
+#include <string>
 #include "utils/Geometry.h"
-#include <QPointF>
-#include <QColor>
 
 namespace R2Geometry {
 	using Vector = Geometry::Vector<2>;
@@ -53,6 +53,22 @@ class Mesh
 		points.swap(mesh.points);
 		triangles.swap(mesh.triangles);
 	}
+};
+
+class Data
+{
+public:
+	int k;
+	std::string name;
+	double originAbsMax;
+	double piecePolynomAbsMax;
+	double errorPiecePolynomAbsMax;
+
+	bool origin, piecePolynom, error;
+	int s, p;
+	std::size_t nx, ny, mx, my;
+
+	Data() = default;
 };
 
 #endif // COMMONDEFS_H

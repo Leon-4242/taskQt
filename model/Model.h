@@ -1,7 +1,8 @@
 #ifndef MODEL_H
 #define MODEl_H
 
-#include "gui/Data.h"
+#include <QObject>
+
 #include "utils/CommonDefs.h"
 #include "core/Approximation.h"
 
@@ -57,6 +58,7 @@ class Model : public QObject
 	
 	signals:
 	void updateMesh();
+	void updateData();
 };
 
 #endif // MODEl_H

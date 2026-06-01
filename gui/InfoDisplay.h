@@ -9,7 +9,7 @@
 #include <QLabel>
 
 #include <iostream>
-#include "gui/Data.h"
+#include "utils/CommonDefs.h"
 
 class InfoDisplay : public QWidget 
 {

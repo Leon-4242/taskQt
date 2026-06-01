@@ -5,7 +5,7 @@ InfoDisplay::InfoDisplay (QWidget *parent, Data *data):
 	data(data),
 	bgColor(Qt::lightGray)
 {
-	connect(data, &Data::changed, this, &InfoDisplay::dataChanged);
+//	connect(data, &Data::changed, this, &InfoDisplay::dataChanged);
 
 	table = new QVBoxLayout(this);
 

@@ -1,8 +1,8 @@
 #include "GraphWidget.h"
 
-GraphWidget::GraphWidget (QWidget *parent, double ax, double bx, double ay, double by, Mesh *mesh, Data *data) :
+GraphWidget::GraphWidget (QWidget *parent, double ax, double bx, double ay, double by, Mesh *mesh) :
 	QWidget(parent),
-	mesh(mesh), data(data),
+	mesh(mesh),
 	bgColor(Qt::lightGray),
 	dist(2*sqrt((bx-ax)*(bx-ax) + (by-ay)*(by-ay) + 4)),
 	center((ax+bx)/2, (ay+by)/2, 0),

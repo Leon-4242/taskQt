@@ -10,10 +10,10 @@ MainWindow::MainWindow(
     setlocale(LC_ALL, "C");
 	
 	storage = new Storage(this);
-	data = new Data(this);
+	data = new Data();
 	model = new Model(ax, bx, ay, by, nx, ny, mx, my, k, storage->getAccess(), data, this);
 	central = new QWidget(this);
-	GUI = new GraphWidget (this, ax, bx, ay, by, storage->renderrAccess(), data);
+	GUI = new GraphWidget (this, ax, bx, ay, by, storage->renderrAccess());
 	infoDisplay = new InfoDisplay(this, data);
 	QHBoxLayout *layout = new QHBoxLayout(central);
 
@@ -75,6 +75,7 @@ MainWindow::MainWindow(
 
 MainWindow::~MainWindow()
 {
+	delete data;
 }
 
 void MainWindow::setConnection()
@@ -83,4 +84,6 @@ void MainWindow::setConnection()
 	connect(GUI, &GraphWidget::updateRenderr, storage, &Storage::updateRenderr);
 
 	connect(storage, &Storage::update, GUI, &GraphWidget::updated);
+
+	connect(model, &Model::updateData, infoDisplay, &InfoDisplay::dataChanged);
 }

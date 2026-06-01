@@ -11,8 +11,6 @@
 //#include <cmath>
 
 #include "gui/3DRender.h"
-#include "gui/Data.h"
-
 #include "utils/CommonDefs.h"
 
 class GraphWidget : public QWidget 
@@ -31,7 +29,6 @@ class GraphWidget : public QWidget
 
 	Mesh *mesh;
 	std::vector<Polygon> polygons;
-	Data *data;
 	QColor bgColor;
 	int w, h;
 	double dist;
@@ -48,7 +45,7 @@ class GraphWidget : public QWidget
 
 	public:
 	
-	GraphWidget(QWidget *, double, double, double, double, Mesh *, Data *);
+	GraphWidget(QWidget *, double, double, double, double, Mesh *);
 	void scaleUp();
 	void scaleDown();
 	void rotateLeft();
@@ -79,7 +76,7 @@ class GraphWidget : public QWidget
 	void updated();
 
 	signals:
-	void updateRenderr();	
+	void updateRenderr();
 };
 
 #endif // GRAPHWIDGET_H
