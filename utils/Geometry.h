@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <cmath>
 #include <cassert>
+#include <string>
 
 #define EPS (1e-15)
 
@@ -141,12 +142,12 @@ namespace Geometry {
 			return derived();
 		}
 		
-		constexpr bool operator==(const Derived &v) const
+		constexpr bool operator==(const Derived &v) const noexcept
 		{
 			return coord == v.coord;
 		}
 
-		constexpr bool operator!=(const Derived &v) const
+		constexpr bool operator!=(const Derived &v) const noexcept
 		{
 			return coord != v.coord;
 		}
@@ -171,40 +172,51 @@ namespace Geometry {
 			return derived() = unit();
 		}
 	
-		constexpr double X () const noexcept
+		[[nodiscard]] constexpr double X () const noexcept
 		{
-			static_assert (N >= 1);
+			static_assert (1 <= N && N <= 3);
 			return coord[0];
 		}
 	
-		constexpr double & X () noexcept
+		[[nodiscard]] constexpr double & X () noexcept
 		{
-			static_assert (N >= 1);
+			static_assert (1 <= N && N <= 3);
 			return coord[0];
 		}
 	
-		constexpr double Y () const noexcept
+		[[nodiscard]] constexpr double Y () const noexcept
 		{
-			static_assert (N >= 2);
+			static_assert (2 <= N && N <= 3);
 			return coord[1];
 		}
-		constexpr double & Y () noexcept
+
+		[[nodiscard]] constexpr double & Y () noexcept
 		{
-			static_assert(N >= 2);
+			static_assert(2 <= N && N <= 3);
 			return coord[1];
 		}
 		
-		constexpr double Z () const noexcept
+		[[nodiscard]] constexpr double Z () const noexcept
 		{
-			static_assert (N >= 3);
-			return coord[2];
-		}
-		constexpr double & Z () noexcept
-		{
-			static_assert(N >= 3);
+			static_assert (N == 3);
 			return coord[2];
 		}
 
+		[[nodiscard]] constexpr double & Z () noexcept
+		{
+			static_assert(N == 3);
+			return coord[2];
+		}
+
+		[[nodiscard]] constexpr std::string view () const noexcept
+		{
+			std::string res{"("};
+			for (std::size_t  i{}; i < N; ++i) {
+				res += std::to_string(coord[i]) + ", ";
+			}
+			res += ")";
+			return res;
+		}
 	};
 
 	template<typename Derived, std::size_t N>
@@ -289,39 +301,110 @@ namespace Geometry {
 		return res;
 	}
 
-}
-
-class Quaternion {
-	
-	private:
-	using Mat = struct Matrix3
+	template<std::size_t N, std::size_t M>
+	class Matrix : public VectorBase<Matrix<N, M>, N*M>
 	{
-		double m[3][3];
-		Geometry::Vector<3> operator* (const Geometry::Vector<3> &v) const noexcept
+		public:
+		using VectorBase<Matrix<N, M>, N*M>::VectorBase;
+		
+		[[nodiscard]] constexpr double operator() (std::size_t i, std::size_t j) const noexcept
 		{
-			return {
-				m[0][0]*v.X() + m[0][1]*v.Y() + m[0][2]*v.Z(),
-				m[1][0]*v.X() + m[1][1]*v.Y() + m[1][2]*v.Z(),
-				m[2][0]*v.X() + m[2][1]*v.Y() + m[2][2]*v.Z()
-			};
+			return this->coord[i*M+j];
 		}
+
+		[[nodiscard]] constexpr double & operator() (std::size_t i, std::size_t j) noexcept
+		{
+			return this->coord[i*M+j];
+		}
+
+		constexpr Vector<N> operator* (const Vector<M> &v) const noexcept
+		{
+			Vector<N> res;
+			for (std::size_t i{}; i < N; ++i) {
+					res[i] = 0;
+					for (std::size_t k{}; k < M; ++k) {
+						res[i] += this->coord[i*M+k]*v[k];
+					}
+			}
+			return res;
+		}
+
+//		constexpr double det () const noexcept
+//		{
+//			static_assert(N == M);
+//			return detPrimitive();
+//		}
+
 	};
+		
+	template<std::size_t N, std::size_t M>
+	constexpr Matrix<N, M> operator* (double c, const Matrix<N, M> &m) noexcept
+	{
+		Matrix<N, M> res(m);
+		for (std::size_t i{}; i < N*M; ++i) {
+			res[i] *= c;
+		}
+		return res;
+	}
+	
+	template<std::size_t N, std::size_t M, std::size_t K>
+	constexpr Matrix<N, K> operator* (const Matrix<N, M> &m1, const Matrix<M, K> &m2) noexcept
+	{
+		Matrix<N, K> res;
+		for (std::size_t i{}; i < N; ++i) {
+			for (std::size_t j{}; j < K; ++j) {
+				res(i, j) = 0;
+				for (std::size_t k{}; k < M; ++k) {
+					res(i, j) += m1(i, k)*m2(k, j);
+				}
+			}
+		}
+		return res;
+	}
+	
+	template<std::size_t N, std::size_t M>
+	constexpr Vector<N> operator* (const Matrix<N, M> &m, const Vector<M> &v) noexcept
+	{
+		Vector<N> res;
+		for (std::size_t i{}; i < N; ++i) {
+				res[i] = 0;
+				for (std::size_t k{}; k < M; ++k) {
+					res[i] += m(i, k)*v[k];
+				}
+		}
+		return res;
+	}
+	
+	template<std::size_t N, std::size_t M>
+	constexpr Vector<M> operator* (const Vector<N> &v, const Matrix<N, M> &m) noexcept
+	{
+		Vector<M> res;
+		for (std::size_t j{}; j < M; ++j) {
+				res[j] = 0;
+				for (std::size_t k{}; k < N; ++k) {
+					res[j] += v[k]*m(k, j);
+				}
+		}
+		return res;
+	}
 
-	Mat m;
-	public:
-	double w, x, y, z;
+	class Quaternion : public Vector<4>
+	{
+		Matrix<3, 3> m;
+	
+		public:
 
-	Quaternion (double w, double x, double y, double z);
-	Quaternion (const Geometry::Vector<3> &axis, double angle);
+		Quaternion (double, double, double, double);
+		Quaternion (const Vector<3> &, double);
 
-	void normalize ();
+		void normalize ();
 
-	Quaternion conjugate () const;
-	Quaternion inverse () const;
+		Quaternion inverse () const;
 
-	Quaternion operator* (const Quaternion &rhs) const;
+		Quaternion operator* (const Quaternion &) const;
 
-	Geometry::Vector<3> rotate (const Geometry::Vector<3> &v) const;
-};
+		Vector<3> rotate (const Vector<3> &) const;
+	};
+}
 
 #endif

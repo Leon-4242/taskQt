@@ -15,6 +15,7 @@ namespace R2Geometry {
 namespace R3Geometry {
 	using Vector = Geometry::Vector<3>;
 	using Point = Geometry::Point<3>;
+	using Quaternion = Geometry::Quaternion;
 }
 
 

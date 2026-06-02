@@ -1,11 +1,10 @@
 #include "3DRender.h"
 
-Camera::Camera(R3Geometry::Point target, Quaternion orien, double f, double d, double asp): 
+Camera::Camera(R3Geometry::Point target, R3Geometry::Quaternion orien, double f, double d, double asp): 
 	target(target), orientation(orien), focus(f), dist(d),
 	screenHalfHeight(1/sqrt(3)), aspect(asp),
 	near(f), far(100)
 {
-	orientation.normalize();
 	W = near/(screenHalfHeight*aspect);
 	H = near/(screenHalfHeight);
 	max = screenHalfHeight/(2*near);
@@ -84,7 +83,7 @@ bool Camera::intersect(R3Geometry::Vector &va, R3Geometry::Vector &vb) const
 
 R3Geometry::Vector Camera::toView(const R3Geometry::Point &x) const 
 {
-	return orientation.conjugate().rotate(x - position());
+	return orientation.inverse().rotate(x - position());
 }
 
 R2Geometry::Point Camera::toProj(const R3Geometry::Vector &v) const 
@@ -263,18 +262,16 @@ void Camera::move(const R3Geometry::Vector &localDir, double dist)
 
 void Camera::orbitGlobal(const R3Geometry::Vector &axis, double phi)
 {
-	Quaternion q(axis.unit(), phi);
+	R3Geometry::Quaternion q(axis.unit(), phi);
 	
 	orientation = q * orientation;
-	orientation.normalize();
 }
 
 void Camera::orbitLocal(const R3Geometry::Vector &axis, double phi)
 {
-	Quaternion q(axis.unit(), phi);
+	R3Geometry::Quaternion q(axis.unit(), phi);
 	
 	orientation = orientation * q;
-	orientation.normalize();
 }
 
 
@@ -296,7 +293,7 @@ R3Geometry::Point Camera::position(void) const
 
 std::string Camera::orien (void) const 
 {
-	return 	"(" + std::to_string(orientation.w) + ", "+ std::to_string(orientation.x) + ", "+ std::to_string(orientation.y) + ", "+ std::to_string(orientation.z) + ")\n";
+	return 	orientation.view();
 }
 
 

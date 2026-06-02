@@ -1,149 +1,105 @@
 #include "Geometry.h"
 
-Quaternion::Quaternion(double www, double xxx, double yyy, double zzz):
-	w(www), x(xxx), y(yyy), z(zzz)
-{
-	double mod = sqrt(w*w+x*x+y*y+z*z);
-	w /= mod;
-	x /= mod;
-	y /= mod;
-	z /= mod;
+namespace Geometry {
 
-	const double xx = x*x;
-	const double yy = y*y;
-	const double zz = z*z;
+	Quaternion::Quaternion(double w, double x, double y, double z):
+		Vector<4>(w, x, y, z)
+	{
+		double mod = sqrt(coord[0]*coord[0]+coord[1]*coord[1]+coord[2]*coord[2]+coord[3]*coord[3]);
+		if (mod < EPS) {
+			coord[0] = coord[1] = coord[2] = coord[3] = 0.0;
+			m = {
+				1.0, 0.0, 0.0, 
+				0.0, 1.0, 0.0, 
+				0.0, 0.0, 1.0
+			};	
+		} else {
+			coord[0] /= mod;
+			coord[1] /= mod;
+			coord[2] /= mod;
+			coord[3] /= mod;
 
-	const double xy = x*y;
-	const double xz = x*z;
-	const double yz = y*z;
-
-	const double wx = w*x;
-	const double wy = w*y;
-	const double wz = w*z;
-		
-	m.m[0][0] = 1.0 - 2.0*(yy + zz);
-	m.m[0][1] = 2.0*(xy - wz);
-	m.m[0][2] = 2.0*(xz + wy);
-
-	m.m[1][0] = 2.0*(xy + wz);
-	m.m[1][1] = 1.0 - 2.0*(xx + zz);
-	m.m[1][2] = 2.0*(yz - wx);
-
-	m.m[2][0] = 2.0*(xz - wy);
-	m.m[2][1] = 2.0*(yz + wx);
-	m.m[2][2] = 1.0 - 2.0*(xx + yy);
-
-	/*
-	if (!(mod > 1e-15)) {
-		w /= mod;
-		x /= mod;
-		y /= mod;
-		z /= mod;
-
-		const double xx = x*x;
-		const double yy = y*y;
-		const double zz = z*z;
-
-		const double xy = x*y;
-		const double xz = x*z;
-		const double yz = y*z;
-
-		const double wx = w*x;
-		const double wy = w*y;
-		const double wz = w*z;
-		
-		m.m[0][0] = 1.0 - 2.0*(yy + zz);
-		m.m[0][1] = 2.0*(xy - wz);
-		m.m[0][2] = 2.0*(xz + wy);
-
-		m.m[1][0] = 2.0*(xy + wz);
-		m.m[1][1] = 1.0 - 2.0*(xx + zz);
-		m.m[1][2] = 2.0*(yz - wx);
-
-		m.m[2][0] = 2.0*(xz - wy);
-		m.m[2][1] = 2.0*(yz + wx);
-		m.m[2][2] = 1.0 - 2.0*(xx + yy);
-	}	
-	*/
-}
-
-Quaternion::Quaternion(const Geometry::Vector<3>& axis, double angle)
-{
-	Geometry::Vector<3> n = axis.unit();
-
-	double half = angle * 0.5;
-	double s = sin(half);
-
-	w = cos(half);
-	x = n.X() * s;
-	y = n.Y() * s;
-	z = n.Z() * s;
-
-	const double xx = x*x;
-	const double yy = y*y;
-	const double zz = z*z;
-
-	const double xy = x*y;
-	const double xz = x*z;
-	const double yz = y*z;
-
-	const double wx = w*x;
-	const double wy = w*y;
-	const double wz = w*z;
-		
-	m.m[0][0] = 1.0 - 2.0*(yy + zz);
-	m.m[0][1] = 2.0*(xy - wz);
-	m.m[0][2] = 2.0*(xz + wy);
-
-	m.m[1][0] = 2.0*(xy + wz);
-	m.m[1][1] = 1.0 - 2.0*(xx + zz);
-	m.m[1][2] = 2.0*(yz - wx);
-
-	m.m[2][0] = 2.0*(xz - wy);
-	m.m[2][1] = 2.0*(yz + wx);
-	m.m[2][2] = 1.0 - 2.0*(xx + yy);
-}
-
-void Quaternion::normalize()
-{
-	double mod = sqrt(w*w+x*x+y*y+z*z);
-	if (mod < 1e-15)
-		return;
-	w /= mod;
-	x /= mod;
-   	y /= mod;
-   	z /= mod;
-}
-
-Quaternion Quaternion::conjugate() const
-{
-	return Quaternion(w, -x, -y, -z);
-}
-
-Quaternion Quaternion::inverse() const
-{
-	double mod2 = w*w+x*x+y*y+z*z;
-	return Quaternion(w/mod2, -x/mod2, -y/mod2, -z/mod2);
-}
-
-Quaternion Quaternion::operator*(const Quaternion& rhs) const
-{
-	return Quaternion(
-			w*rhs.w - (x*rhs.x+y*rhs.y+z*rhs.z), 
-			w*rhs.x +rhs.w*x + (y*rhs.z - z*rhs.y),
-			w*rhs.y +rhs.w*y + (z*rhs.x - x*rhs.z),
-			w*rhs.z +rhs.w*z + (x*rhs.y - y*rhs.x)
-			);
-}
-
-Geometry::Vector<3> Quaternion::rotate(const Geometry::Vector<3> &v) const
-{
-	return m*v;
-	/*
-	R3Geometry::Vector qv(x, y, z);
+			const double xx = coord[1]*coord[1];
+			const double yy = coord[2]*coord[2];
+			const double zz = coord[3]*coord[3];
 	
-	R3Geometry::Vector t = 2.0 * qv.vect(v);
-	return v + w*t + qv.vect(t);
-	*/
-}
+			const double xy = coord[1]*coord[2];
+			const double xz = coord[1]*coord[3];
+			const double yz = coord[2]*coord[3];
 
+			const double wx = coord[0]*coord[1];
+			const double wy = coord[0]*coord[2];
+			const double wz = coord[0]*coord[3];
+	
+			m = {
+				1.0 - 2.0*(yy + zz), 2.0*(xy - wz), 2.0*(xz + wy), 
+				2.0*(xy + wz), 1.0 - 2.0*(xx + zz), 2.0*(yz - wx), 
+				2.0*(xz - wy), 2.0*(yz + wx), 1.0 - 2.0*(xx + yy)
+			};	
+		}
+	}
+
+	Quaternion::Quaternion(const Vector<3> &axis, double angle)
+	{
+		if (axis.mod() < EPS) {
+			coord[0] = 1.0;
+			coord[1] = 0;
+			coord[2] = 0;
+			coord[3] = 0;
+
+			m = {
+				1.0, 0.0, 0.0, 
+				0.0, 1.0, 0.0, 
+				0.0, 0.0, 1.0
+			};	
+		} else {
+			Vector<3> n = axis.unit();
+			
+			double half = angle * 0.5;
+			double s = sin(half);
+
+			coord[0] = cos(half);
+			coord[1] = n.X() * s;
+			coord[2] = n.Y() * s;
+			coord[3] = n.Z() * s;
+
+			const double xx = coord[1]*coord[1];
+			const double yy = coord[2]*coord[2];
+			const double zz = coord[3]*coord[3];
+
+			const double xy = coord[1]*coord[2];
+			const double xz = coord[1]*coord[3];
+			const double yz = coord[2]*coord[3];
+
+			const double wx = coord[0]*coord[1];
+			const double wy = coord[0]*coord[2];
+			const double wz = coord[0]*coord[3];
+
+			m = {
+				1.0 - 2.0*(yy + zz), 2.0*(xy - wz), 2.0*(xz + wy), 
+				2.0*(xy + wz), 1.0 - 2.0*(xx + zz), 2.0*(yz - wx), 
+				2.0*(xz - wy), 2.0*(yz + wx), 1.0 - 2.0*(xx + yy)
+			};	
+		}
+	}
+
+	Quaternion Quaternion::inverse() const
+	{
+		return Quaternion(coord[0], -coord[1], -coord[2], -coord[3]);
+	}
+
+	Quaternion Quaternion::operator*(const Quaternion &rhs) const
+	{
+		return Quaternion(
+				coord[0]*rhs.coord[0] - (coord[1]*rhs.coord[1]+coord[2]*rhs.coord[2]+coord[3]*rhs.coord[3]), 
+				coord[0]*rhs.coord[1] +rhs.coord[0]*coord[1] + (coord[2]*rhs.coord[3] - coord[3]*rhs.coord[2]),
+				coord[0]*rhs.coord[2] +rhs.coord[0]*coord[2] + (coord[3]*rhs.coord[1] - coord[1]*rhs.coord[3]),
+				coord[0]*rhs.coord[3] +rhs.coord[0]*coord[3] + (coord[1]*rhs.coord[2] - coord[2]*rhs.coord[1])
+				);
+	}
+
+	Vector<3> Quaternion::rotate(const Vector<3> &v) const
+	{
+		return m*v;
+	}
+}

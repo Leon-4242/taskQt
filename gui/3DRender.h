@@ -18,7 +18,7 @@ class Camera
 
 	R3Geometry::Point target;
 	
-	Quaternion orientation;
+	R3Geometry::Quaternion orientation;
 	double focus;
 	double dist;
 
@@ -31,7 +31,7 @@ class Camera
 	double max;
 	public:
 
-	Camera(R3Geometry::Point, Quaternion, double, double, double);
+	Camera(R3Geometry::Point, R3Geometry::Quaternion, double, double, double);
 
 	Polygon projectPoint(const R3Geometry::Point &) const;
 	Polygon projectSegment(const R3Geometry::Point &, const R3Geometry::Point &) const;

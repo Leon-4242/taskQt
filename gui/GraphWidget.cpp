@@ -6,7 +6,7 @@ GraphWidget::GraphWidget (QWidget *parent, double ax, double bx, double ay, doub
 	bgColor(Qt::lightGray),
 	dist(2*sqrt((bx-ax)*(bx-ax) + (by-ay)*(by-ay) + 4)),
 	center((ax+bx)/2, (ay+by)/2, 0),
-	camera(center, Quaternion(1, 0, 0, 0), 1, dist, 2.0),
+	camera(center, R3Geometry::Quaternion(1, 0, 0, 0), 1, dist, 2.0),
 	lightPos({0, 0, 3}),
 	light(lightPos)
 {
